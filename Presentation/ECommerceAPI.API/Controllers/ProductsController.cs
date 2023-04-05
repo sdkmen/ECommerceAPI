@@ -1,5 +1,6 @@
 ﻿using ECommerceAPI.Application.Repositories;
 using ECommerceAPI.Application.RequestParameters;
+using ECommerceAPI.Application.Services;
 using ECommerceAPI.Application.ViewModels.Products;
 using ECommerceAPI.Domain.Entities;
 using Microsoft.AspNetCore.Http;
@@ -16,12 +17,14 @@ namespace ECommerceAPI.API.Controllers
         readonly private IProductWriteRepository _productWriteRepository;
         readonly private IProductReadRepository _productReadRepository;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        readonly IFileService _fileService;
 
-        public ProductsController(IProductWriteRepository productWriteRepository, IProductReadRepository productReadRepository, IWebHostEnvironment webHostEnvironment)
+        public ProductsController(IProductWriteRepository productWriteRepository, IProductReadRepository productReadRepository, IWebHostEnvironment webHostEnvironment, IFileService fileService)
         {
             _productWriteRepository = productWriteRepository;
             _productReadRepository = productReadRepository;
             _webHostEnvironment = webHostEnvironment;
+            _fileService = fileService;
         }
 
         [HttpGet]
@@ -88,30 +91,32 @@ namespace ECommerceAPI.API.Controllers
         public async Task<IActionResult> Upload()
         {
             //wwwroot/resource/product-images
-            string uploadPath = Path.Combine(_webHostEnvironment.WebRootPath,"resource/product-images");
+            //string uploadPath = Path.Combine(_webHostEnvironment.WebRootPath,"resource/product-images");
 
-            if(!Directory.Exists(uploadPath))
-                Directory.CreateDirectory(uploadPath);
+            //if(!Directory.Exists(uploadPath))
+            //    Directory.CreateDirectory(uploadPath);
 
-            foreach (IFormFile file in Request.Form.Files)
-            {
-                DateTime date = DateTime.Now;
-                string fileName = Path.GetFileNameWithoutExtension(file.FileName);
+            //foreach (IFormFile file in Request.Form.Files)
+            //{
+            //    DateTime date = DateTime.Now;
+            //    string fileName = Path.GetFileNameWithoutExtension(file.FileName);
 
-                string fileNameWithDate = Path.Combine(fileName, date.ToString());
+            //    string fileNameWithDate = Path.Combine(fileName, date.ToString());
 
-                string noExtensionFileName = fileNameWithDate.ToLower()
-                    .Replace(" ", "-").Replace("ğ", "g").Replace("ı", "i").Replace("ö", "o")
-                    .Replace("ü", "u").Replace("ş", "s").Replace("ç", "c").Replace("Ç", "c")
-                    .Replace("Ş", "s").Replace("Ğ", "g").Replace("Ü", "u").Replace("İ", "i")
-                    .Replace("Ö", "o").Replace("\\","-").Replace(".","-").Replace(":","-").Trim();
+            //    string noExtensionFileName = fileNameWithDate.ToLower()
+            //        .Replace(" ", "-").Replace("ğ", "g").Replace("ı", "i").Replace("ö", "o")
+            //        .Replace("ü", "u").Replace("ş", "s").Replace("ç", "c").Replace("Ç", "c")
+            //        .Replace("Ş", "s").Replace("Ğ", "g").Replace("Ü", "u").Replace("İ", "i")
+            //        .Replace("Ö", "o").Replace("\\","-").Replace(".","-").Replace(":","-").Trim();
 
-                string fullPath = Path.Combine(uploadPath, $"{noExtensionFileName}{Path.GetExtension(file.FileName)}");
+            //    string fullPath = Path.Combine(uploadPath, $"{noExtensionFileName}{Path.GetExtension(file.FileName)}");
 
-                using FileStream fileStream = new(fullPath,FileMode.Create, FileAccess.Write, FileShare.None, 1024 * 1024, useAsync: false);
-                await file.CopyToAsync(fileStream);
-                await fileStream.FlushAsync();
-            }
+            //    using FileStream fileStream = new(fullPath,FileMode.Create, FileAccess.Write, FileShare.None, 1024 * 1024, useAsync: false);
+            //    await file.CopyToAsync(fileStream);
+            //    await fileStream.FlushAsync();
+            //}
+
+            await _fileService.UploadAsync("resource/product-images", Request.Form.Files);
 
             return Ok();
         }
