@@ -18,13 +18,34 @@ namespace ECommerceAPI.API.Controllers
         readonly private IProductReadRepository _productReadRepository;
         private readonly IWebHostEnvironment _webHostEnvironment;
         readonly IFileService _fileService;
+        readonly IFileWriteRepository _fileWriteRepository;
+        readonly IFileReadRepository _fileReadRepository;
+        readonly IProductImageFileWriteRepository _productImageFileWriteRepository;
+        readonly IProductImageFileReadRepository _productImageFileReadRepository;
+        readonly IInvoiceFileWriteRepository _invoiceFileWriteRepository;
+        readonly IInvoiceFileReadRepository _invoiceFileReadRepository;
 
-        public ProductsController(IProductWriteRepository productWriteRepository, IProductReadRepository productReadRepository, IWebHostEnvironment webHostEnvironment, IFileService fileService)
+        public ProductsController(IProductWriteRepository productWriteRepository,
+                                  IProductReadRepository productReadRepository,
+                                  IWebHostEnvironment webHostEnvironment,
+                                  IFileService fileService,
+                                  IFileWriteRepository fileWriteRepository,
+                                  IFileReadRepository fileReadRepository,
+                                  IProductImageFileWriteRepository productImageFileWriteRepository,
+                                  IProductImageFileReadRepository productImageFileReadRepository,
+                                  IInvoiceFileWriteRepository invoiceFileWriteRepository,
+                                  IInvoiceFileReadRepository invoiceFileReadRepository)
         {
             _productWriteRepository = productWriteRepository;
             _productReadRepository = productReadRepository;
             _webHostEnvironment = webHostEnvironment;
             _fileService = fileService;
+            _fileWriteRepository = fileWriteRepository;
+            _fileReadRepository = fileReadRepository;
+            _productImageFileWriteRepository = productImageFileWriteRepository;
+            _productImageFileReadRepository = productImageFileReadRepository;
+            _invoiceFileWriteRepository = invoiceFileWriteRepository;
+            _invoiceFileReadRepository = invoiceFileReadRepository;
         }
 
         [HttpGet]
@@ -90,33 +111,33 @@ namespace ECommerceAPI.API.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> Upload()
         {
-            //wwwroot/resource/product-images
-            //string uploadPath = Path.Combine(_webHostEnvironment.WebRootPath,"resource/product-images");
+            var datas = await _fileService.UploadAsync("resource/product-images", Request.Form.Files);
+            await _productImageFileWriteRepository.AddRangeAsync(datas.Select(d => new ProductImageFile()
+            {
+                FileName = d.fileName,
+                Path = d.path,
+            }).ToList());
+            await _productImageFileWriteRepository.SaveAsync();
 
-            //if(!Directory.Exists(uploadPath))
-            //    Directory.CreateDirectory(uploadPath);
-
-            //foreach (IFormFile file in Request.Form.Files)
+            //await _invoiceFileWriteRepository.AddRangeAsync(datas.Select(d => new InvoiceFile()
             //{
-            //    DateTime date = DateTime.Now;
-            //    string fileName = Path.GetFileNameWithoutExtension(file.FileName);
+            //    FileName = d.fileName,
+            //    Path = d.path,
+            //    Price = new Random().Next()
+            //}).ToList());
+            //await _invoiceFileWriteRepository.SaveAsync();
 
-            //    string fileNameWithDate = Path.Combine(fileName, date.ToString());
 
-            //    string noExtensionFileName = fileNameWithDate.ToLower()
-            //        .Replace(" ", "-").Replace("ğ", "g").Replace("ı", "i").Replace("ö", "o")
-            //        .Replace("ü", "u").Replace("ş", "s").Replace("ç", "c").Replace("Ç", "c")
-            //        .Replace("Ş", "s").Replace("Ğ", "g").Replace("Ü", "u").Replace("İ", "i")
-            //        .Replace("Ö", "o").Replace("\\","-").Replace(".","-").Replace(":","-").Trim();
+            //await _fileWriteRepository.AddRangeAsync(datas.Select(d => new Domain.Entities.File()
+            //{
+            //    FileName = d.fileName,
+            //    Path = d.path
+            //}).ToList());
+            //await _fileWriteRepository.SaveAsync();
 
-            //    string fullPath = Path.Combine(uploadPath, $"{noExtensionFileName}{Path.GetExtension(file.FileName)}");
-
-            //    using FileStream fileStream = new(fullPath,FileMode.Create, FileAccess.Write, FileShare.None, 1024 * 1024, useAsync: false);
-            //    await file.CopyToAsync(fileStream);
-            //    await fileStream.FlushAsync();
-            //}
-
-            await _fileService.UploadAsync("resource/product-images", Request.Form.Files);
+            //var d1 = _fileReadRepository.GetAll(false);
+            //var d2 = _invoiceFileReadRepository.GetAll(false);
+            //var d3 = _productImageFileReadRepository.GetAll(false);
 
             return Ok();
         }
