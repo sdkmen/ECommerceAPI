@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ECommerceAPI.Application.Exceptions
 {
-    internal class NotFoundUserException : Exception
+    public class NotFoundUserException : Exception
     {
         public NotFoundUserException() : base("Username or password is not correct")
         {
