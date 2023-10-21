@@ -1,4 +1,5 @@
-﻿using ECommerceAPI.Application.Repositories;
+﻿using ECommerceAPI.Application.Abstractions.Hubs;
+using ECommerceAPI.Application.Repositories;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -11,9 +12,11 @@ namespace ECommerceAPI.Application.Features.Commands.Product.CreateProduct
     public class CreateProductCommandHandler : IRequestHandler<CreateProductCommandRequest, CreateProductCommandResponse>
     {
         readonly IProductWriteRepository _productWriteRepository;
-        public CreateProductCommandHandler(IProductWriteRepository productWriteRepository)
+        readonly IProductHubService _productHubService;
+        public CreateProductCommandHandler(IProductWriteRepository productWriteRepository, IProductHubService productHubService)
         {
             _productWriteRepository = productWriteRepository;
+            _productHubService = productHubService;
         }
         public async Task<CreateProductCommandResponse> Handle(CreateProductCommandRequest request, CancellationToken cancellationToken)
         {
@@ -25,6 +28,7 @@ namespace ECommerceAPI.Application.Features.Commands.Product.CreateProduct
             });
 
             await _productWriteRepository.SaveAsync();
+            await _productHubService.ProductAddedMessageAsync($"Named with {request.Name} product is added.");
             return new();
         }
     }
