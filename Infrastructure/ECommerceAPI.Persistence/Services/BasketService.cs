@@ -117,12 +117,21 @@ namespace ECommerceAPI.Persistence.Services
         public async Task UpdateQuantityAsync(VM_Update_BasketItem basketItem)
         {
             BasketItem? _basketItem = await _basketItemReadRepository.GetByIdAsync(basketItem.BasketItemId);
-            if(_basketItem != null)
+            if (_basketItem != null)
             {
                 _basketItem.Quantity = basketItem.Quantity;
                 _basketItemWriteRepository.Update(_basketItem);
 
                 await _basketItemWriteRepository.SaveAsync();
+            }
+        }
+
+        public Basket? GetUserActiveBasket
+        {
+            get
+            {
+                Basket? basket = ContextUser().Result;
+                return basket;
             }
         }
     }
