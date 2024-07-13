@@ -42,6 +42,7 @@ namespace ECommerceAPI.Persistence.Services
                      .ThenInclude(b => b.Product)
                  .Select(o => new
                  {
+                     Id = o.Id,
                      Username = o.Basket.User.UserName,
                      TotalPrice = o.Basket.BasketItems.Sum(bi => bi.Product.Price * bi.Quantity),
                      OrderCode = o.OrderCode,
@@ -55,6 +56,30 @@ namespace ECommerceAPI.Persistence.Services
             {
                 TotalOrderCount = await query.CountAsync(),
                 Orders = data
+            };
+        }
+
+        public async Task<SingleOrder> GetOrderByIdAsync(string id)
+        {
+            var data = await _orderReadRepository.Table
+                                .Include(o => o.Basket)
+                                    .ThenInclude(b=>b.BasketItems)
+                                        .ThenInclude(bi=>bi.Product)
+                                            .FirstOrDefaultAsync(o=>o.Id == Guid.Parse(id));
+
+            return new()
+            {
+                Id = data.Id.ToString(),
+                BasketItems = data.Basket.BasketItems.Select(bi => new
+                {
+                    bi.Product.Name,
+                    bi.Product.Price,
+                    bi.Quantity
+                }),
+                Address = data.Address,
+                CreatedDate = data.CreatedDate,
+                Description = data.Description,
+                OrderCode = data.OrderCode,
             };
         }
     }
