@@ -1,4 +1,5 @@
-﻿using ECommerceAPI.Application.Features.Commands.AppUser.CreateUser;
+﻿using ECommerceAPI.Application.Abstractions.Services;
+using ECommerceAPI.Application.Features.Commands.AppUser.CreateUser;
 using ECommerceAPI.Application.Features.Commands.AppUser.FacebookLogin;
 using ECommerceAPI.Application.Features.Commands.AppUser.GoogleLogin;
 using ECommerceAPI.Application.Features.Commands.AppUser.LoginUser;
@@ -13,9 +14,11 @@ namespace ECommerceAPI.API.Controllers
     public class UsersController : ControllerBase
     {
         readonly IMediator _mediator;
-        public UsersController(IMediator mediator)
+        readonly IMailService _mailService;
+        public UsersController(IMediator mediator, IMailService mailService)
         {
             _mediator = mediator;
+            _mailService = mailService;
         }
 
         [HttpPost]
@@ -24,5 +27,12 @@ namespace ECommerceAPI.API.Controllers
             CreateUserCommandResponse response = await _mediator.Send(createUserCommandRequest);
             return Ok(response);
         }
+
+        //[HttpGet]
+        //public async Task<IActionResult> ExampleMailTest()
+        //{
+        //    await _mailService.SendMessageAsync("info@gmail.com", "Test Mail", "<b>It is a test mail</b>");
+        //    return Ok();
+        //}
     }
 }
