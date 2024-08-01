@@ -19,12 +19,12 @@ namespace ECommerceAPI.Infrastructure.Services
             _configuration = configuration;
         }
 
-        public async Task SendMessageAsync(string to, string subject, string body, bool isBodyHtml = true)
+        public async Task SendMailAsync(string to, string subject, string body, bool isBodyHtml = true)
         {
-            await SendMessageAsync(new[] { to }, subject, body, isBodyHtml);
+            await SendMailAsync(new[] { to }, subject, body, isBodyHtml);
         }
 
-        public async Task SendMessageAsync(string[] tos, string subject, string body, bool isBodyHtml = true)
+        public async Task SendMailAsync(string[] tos, string subject, string body, bool isBodyHtml = true)
         {
             MailMessage mail = new();
             mail.IsBodyHtml = isBodyHtml;
@@ -40,6 +40,23 @@ namespace ECommerceAPI.Infrastructure.Services
             smtp.EnableSsl = true;
             smtp.Host = _configuration["Mail:Host"];
             await smtp.SendMailAsync(mail);
+        }
+
+        public async Task SendPasswordResetMailAsync(string to, string userId, string resetToken)
+        {
+            StringBuilder mail = new();
+            mail.AppendLine("Hello<br>You can continue the password update process by clicking on the link below.<br><strong>");
+            mail.Append("<a target=\"_blank\" href=\"");
+            mail.Append(_configuration["AngularClientUrl"]);
+            mail.Append("/update-password/");
+            mail.Append(userId);
+            mail.Append("/");
+            mail.Append(resetToken);
+            mail.Append("\">Click for redirect to update password page</a></strong><br><br><br>");
+            mail.Append("<span style=\"font-size:12px;\">If you have not requested to update your password, ignore this email.</span><br><br>");
+            mail.Append("Mini E-Commerce App");
+
+            await SendMailAsync(to, "Update Password", mail.ToString());
         }
     }
 }
