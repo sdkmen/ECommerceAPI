@@ -1,6 +1,7 @@
 ﻿using ECommerceAPI.Application.Abstractions.Services;
 using ECommerceAPI.Application.DTOs.Order;
 using ECommerceAPI.Application.Repositories;
+using ECommerceAPI.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,11 +11,13 @@ namespace ECommerceAPI.Persistence.Services
     {
         readonly IOrderWriteRepository _orderWriteRepository;
         readonly IOrderReadRepository _orderReadRepository;
+        readonly ICompletedOrderWriteRepository _completedOrderWriteRepository;
 
-        public OrderService(IOrderWriteRepository orderWriteRepository, IOrderReadRepository orderReadRepository)
+        public OrderService(IOrderWriteRepository orderWriteRepository, IOrderReadRepository orderReadRepository, ICompletedOrderWriteRepository completedOrderWriteRepository)
         {
             _orderWriteRepository = orderWriteRepository;
             _orderReadRepository = orderReadRepository;
+            _completedOrderWriteRepository = completedOrderWriteRepository;
         }
 
         public async Task CreateOrderAsync(CreateOrder createOrder)
@@ -81,6 +84,14 @@ namespace ECommerceAPI.Persistence.Services
                 Description = data.Description,
                 OrderCode = data.OrderCode,
             };
+        }
+        public async Task CompleteOrderAsync(string id)
+        {
+            Order order = await _orderReadRepository.GetByIdAsync(id);
+            if(order != null)
+            {
+                await _completedOrderWriteRepository.AddAsync(new() { OrderId = Guid.Parse(id) });
+            }
         }
     }
 }
