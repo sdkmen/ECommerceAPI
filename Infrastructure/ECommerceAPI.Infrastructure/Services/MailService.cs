@@ -58,5 +58,14 @@ namespace ECommerceAPI.Infrastructure.Services
 
             await SendMailAsync(to, "Update Password", mail.ToString());
         }
+        public async Task SendCompletedOrderMailAsync(string to, string orderCode, DateTime date, string userNameSurname)
+        {
+            string mail = $"Hello {userNameSurname},<br><br>" +
+                          $"<span style=\"font-weight:bold; color: black;\">{orderCode}</span> coded order was completed on {date} and delivered to the cargo company for shipment." +
+                          $"<br><br>Thanks for choosing us..." +
+                          $"<br><br><span style=\"font-weight:bold; color: black;\">Mini E-Commerce App</span>";
+
+            await SendMailAsync(to, $"New update about order with {orderCode} code!", mail);
+        }
     }
 }
