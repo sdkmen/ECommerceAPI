@@ -11,5 +11,7 @@ namespace ECommerceAPI.Application.Consts
         public const string Baskets = "Baskets";
         public const string Orders = "Orders";
         public const string Products = "Products";
+        public const string ApplicationServices = "Application Services";
+        public const string Roles = "Roles";
     }
 }
