@@ -57,7 +57,7 @@ namespace ECommerceAPI.API.Controllers
             return Ok(response);
         }
 
-        [HttpPut("{name}")]
+        [HttpDelete("{Id}")]
         [AuthorizeDefiniton(Menu = AuthorizeDefinitionConstants.Roles, ActionType = ActionType.Deleting, Definition = "Delete Role")]
         public async Task<IActionResult> DeleteRole([FromRoute] DeleteRoleCommandRequest deleteRoleCommandRequest)
         {
