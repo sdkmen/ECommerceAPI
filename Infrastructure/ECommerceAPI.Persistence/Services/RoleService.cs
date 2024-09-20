@@ -35,7 +35,14 @@ namespace ECommerceAPI.Persistence.Services
         {
             var query = _roleManager.Roles;
 
-            return (query.Skip(page * size).Take(size).Select(role => new { role.Id, role.Name }), 
+            IQueryable<AppRole> rolesQuery = null;
+            if (page != -1 && size != -1)
+                rolesQuery = query.Skip(page * size).Take(size);
+            else
+                rolesQuery = query;
+
+
+            return (rolesQuery.Select(role => new { role.Id, role.Name }), 
                     query.Count());
         }
 
