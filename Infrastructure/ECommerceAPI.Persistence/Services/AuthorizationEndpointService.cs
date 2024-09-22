@@ -83,5 +83,17 @@ namespace ECommerceAPI.Persistence.Services
 
             await _endpointWriteRepository.SaveAsync();
         }
+
+        public async Task<List<string>> GetRolesToEndpointAsync(string code, string menu)
+        {
+            Endpoint? endpoint = await _endpointReadRepository.Table
+                                            .Include(e => e.Roles)
+                                            .Include(e => e.Menu)
+                                            .FirstOrDefaultAsync(e => e.Code == code && e.Menu.Name == menu);
+            if (endpoint == null)
+                return null;
+
+            return endpoint.Roles.Select(e => e.Name).ToList();
+        }
     }
 }
