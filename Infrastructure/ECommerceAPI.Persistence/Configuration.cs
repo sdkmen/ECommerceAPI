@@ -11,14 +11,23 @@ namespace ECommerceAPI.Persistence
     {
         static public string ConnectionString
         {
-            get {
+            get
+            {
                 ConfigurationManager configurationManager = new();
-                //appsettings.json'a gitmek için path oluşturuyoruz, Directory.GetCurrentDirectory() bize içinde bulunduğumuz ECommerceAPI.Persistence klasörünü veriyor ../ ile bir dışa Infrastructure'a çıkıyoruz ../ ile solutiona ulaşıp devamında ECommerceAPI.API'ye giriyoruz.
-                configurationManager.SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "../../Presentation/ECommerceAPI.API"));
-                //Microsoft.Extensions.Configurations.Json kütüphanesi sayesinde addJsonFile'a ulaşabiliyoruz.
-                configurationManager.AddJsonFile("appsettings.json");
+
+                try
+                {
+                    configurationManager.SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "../../Presentation/ECommerceAPI.API"));
+                    configurationManager.AddJsonFile("appsettings.json");
+                }
+                catch
+                {
+                    //need in publish
+                    configurationManager.AddJsonFile("appsettings.Production.json");
+                }
+
                 return configurationManager.GetConnectionString("PostgreSQL");
-            }    
+            }
         }
     }
 }
