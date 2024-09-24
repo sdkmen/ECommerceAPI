@@ -14,12 +14,14 @@ namespace ECommerceAPI.Persistence.Services
     public class ProductService : IProductService
     {
         readonly IProductReadRepository _productReadRepository;
+        readonly IProductWriteRepository _productWriteRepository;
         readonly IQRCodeService _qrCodeService;
 
-        public ProductService(IProductReadRepository productReadRepository, IQRCodeService qrCodeService)
+        public ProductService(IProductReadRepository productReadRepository, IQRCodeService qrCodeService, IProductWriteRepository productWriteRepository)
         {
             _productReadRepository = productReadRepository;
             _qrCodeService = qrCodeService;
+            _productWriteRepository = productWriteRepository;
         }
 
         public async Task<byte[]> QrCodeToProductAsync(string productId)
@@ -40,6 +42,17 @@ namespace ECommerceAPI.Persistence.Services
             string plainText = JsonSerializer.Serialize(plainObject);
 
             return _qrCodeService.GenerateQRCode(plainText);
+        }
+
+        public async Task StockUpdateToProductAsync(string productId, int stock)
+        {
+            Product product = await _productReadRepository.GetByIdAsync(productId);
+            if (product == null)
+                throw new ProductNotFoundException();
+
+            product.Stock = stock;
+            _productWriteRepository.Update(product);
+            await _productWriteRepository.SaveAsync();
         }
     }
 }

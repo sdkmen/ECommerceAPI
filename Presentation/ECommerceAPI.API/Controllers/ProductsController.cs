@@ -1,25 +1,20 @@
 ﻿using ECommerceAPI.Application.Abstractions.Services;
-using ECommerceAPI.Application.Abstractions.Storage;
 using ECommerceAPI.Application.Consts;
 using ECommerceAPI.Application.CustomAttributes;
 using ECommerceAPI.Application.Enums;
 using ECommerceAPI.Application.Features.Commands.Product.CreateProduct;
 using ECommerceAPI.Application.Features.Commands.Product.RemoveProduct;
 using ECommerceAPI.Application.Features.Commands.Product.UpdateProduct;
+using ECommerceAPI.Application.Features.Commands.Product.UpdateStockQrCodeToProduct;
 using ECommerceAPI.Application.Features.Commands.ProductImageFile.ChangeShowcaseImage;
 using ECommerceAPI.Application.Features.Commands.ProductImageFile.RemoveProductImage;
 using ECommerceAPI.Application.Features.Commands.ProductImageFile.UploadProductImage;
 using ECommerceAPI.Application.Features.Queries.Product.GetAllProduct;
 using ECommerceAPI.Application.Features.Queries.Product.GetByIdProduct;
 using ECommerceAPI.Application.Features.Queries.ProductImageFile.GetProductImages;
-using ECommerceAPI.Application.Repositories;
-using ECommerceAPI.Application.RequestParameters;
-using ECommerceAPI.Application.ViewModels.Products;
-using ECommerceAPI.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Net;
 
 namespace ECommerceAPI.API.Controllers
@@ -49,6 +44,13 @@ namespace ECommerceAPI.API.Controllers
         {
             var data = await _productService.QrCodeToProductAsync(productId);
             return File(data, "image/png");
+        }
+
+        [HttpPut("qrcode")]
+        public async Task<IActionResult> UpdateStockQrCodeToProduct([FromBody] UpdateStockQrCodeToProductCommandRequest updateStockQrCodeToProductCommandRequest)
+        {
+            UpdateStockQrCodeToProductCommandResponse response = await _mediator.Send(updateStockQrCodeToProductCommandRequest);
+            return Ok(response);
         }
 
         [HttpGet("{Id}")]
